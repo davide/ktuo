@@ -60,6 +60,8 @@
 %% @spec encode(DataObjects::in_value()) -> Output::string()
 %% @end
 %%--------------------------------------------------------------------
+encode([{_,_}|_]=Object) ->
+	encode_object(Object, []);
 encode(Data) when is_list(Data) ->
     lists:reverse(encode_array(Data, []));
 encode({obj, Value}) ->
