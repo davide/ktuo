@@ -72,6 +72,9 @@ encode(Data) when is_integer(Data) ->
     encode_integer(Data);
 encode(Data) when is_float(Data) ->
     encode_float(Data);
+encode(Data) when is_tuple(Data) ->
+	SizePlusOne = size(Data)+1,
+    lists:reverse(encode_tuple(1, SizePlusOne, Data, []));
 encode(true) ->
     atom_to_list(true);
 encode(false) ->
@@ -246,6 +249,24 @@ encode_array([], []) ->
     [$], $[];
 encode_array([], TAcc) ->
     [$] | TAcc].
+
+%%--------------------------------------------------------------------
+%% @doc
+%%  Encode erlang tuple as a javascript list
+%% @spec encode_array(Array::tuple(), Acc::string()) -> List::string()
+%% @private
+%% @end
+%%--------------------------------------------------------------------
+encode_tuple(_, 0, _Tuple, _Acc) ->
+	[$], $[];
+encode_tuple(SizePlusOne, SizePlusOne, _Tuple, Acc) ->
+	[$] | Acc];
+encode_tuple(1, SizePlusOne, Tuple, []) ->
+	Enc = encode(element(1,Tuple)),
+	encode_tuple(2, SizePlusOne, Tuple, [Enc, $[]);
+encode_tuple(I, SizePlusOne, Tuple, Acc) ->
+	Enc = encode(element(I,Tuple)),
+	encode_tuple(I+1, SizePlusOne, Tuple, [Enc, $, | Acc]).
 
 
 %%--------------------------------------------------------------------
